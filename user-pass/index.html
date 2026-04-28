@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — SecureVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #12121a;
+      --border: #2a2a3a;
+      --accent: #6c63ff;
+      --accent2: #ff6b6b;
+      --green: #00e5a0;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --error: #ff6b6b;
+      --success: #00e5a0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      overflow: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 20% 20%, rgba(108,99,255,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 80% 80%, rgba(0,229,160,0.08) 0%, transparent 60%);
+      z-index: 0;
+      animation: bgPulse 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgPulse {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .brand-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 0 40px rgba(108,99,255,0.4);
+    }
+
+    .brand h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .brand span { color: var(--accent); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    }
+
+    .card h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .field {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 3rem 0.9rem 1rem;
+      font-size: 0.95rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      background: rgba(108,99,255,0.06);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+
+    input.error-input {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(255,107,107,0.12);
+    }
+
+    .toggle-pw {
+      position: absolute;
+      right: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .toggle-pw:hover { color: var(--text); }
+
+    /* Password strength bar */
+    .strength-bar-wrap {
+      margin-top: 0.6rem;
+      display: flex;
+      gap: 4px;
+    }
+
+    .strength-segment {
+      flex: 1;
+      height: 3px;
+      border-radius: 99px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+
+    .strength-segment.active-1 { background: var(--error); }
+    .strength-segment.active-2 { background: #ff9f43; }
+    .strength-segment.active-3 { background: #ffd93d; }
+    .strength-segment.active-4 { background: var(--success); }
+
+    .strength-label {
+      font-size: 0.72rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      min-height: 1em;
+      transition: color 0.3s;
+    }
+
+    /* Requirements checklist */
+    .requirements {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .req-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .req-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      transition: color 0.3s;
+    }
+
+    .req-item:last-child { margin-bottom: 0; }
+
+    .req-dot {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+
+    .req-item.passed { color: var(--success); }
+    .req-item.passed .req-dot {
+      background: var(--success);
+      border-color: var(--success);
+      color: #000;
+    }
+
+    .req-item.failed { color: var(--error); }
+    .req-item.failed .req-dot {
+      background: rgba(255,107,107,0.2);
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .field-error {
+      font-size: 0.78rem;
+      color: var(--error);
+      font-family: 'DM Mono', monospace;
+      margin-top: 0.4rem;
+      min-height: 1.1em;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--accent), #9c56ff);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 8px 30px rgba(108,99,255,0.35);
+    }
+
+    .btn:hover:not(:disabled) {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 40px rgba(108,99,255,0.5);
+    }
+
+    .btn:active:not(:disabled) { transform: translateY(0); }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Users list */
+    .users-section {
+      margin-top: 2rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1.5rem;
+    }
+
+    .users-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .users-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      animation: fadeIn 0.3s ease both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .user-avatar {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+
+    .user-badge {
+      margin-left: auto;
+      background: rgba(0,229,160,0.12);
+      border: 1px solid rgba(0,229,160,0.3);
+      color: var(--success);
+      font-size: 0.68rem;
+      font-family: 'DM Mono', monospace;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--success);
+      color: #000;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+      border-radius: 99px;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.error {
+      background: var(--error);
+      color: #fff;
+    }
+
+    .empty-msg {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="brand">
+    <div class="brand-icon">🔐</div>
+    <h1>Secure<span>Vault</span></h1>
+  </div>
+
+  <div class="card">
+    <h2>Create Account</h2>
+
+    <div class="field">
+      <label>Username</label>
+      <div class="input-wrap">
+        <input type="text" id="username" placeholder="e.g. john_doe" autocomplete="off" />
+      </div>
+      <div class="field-error" id="username-error"></div>
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <div class="input-wrap">
+        <input type="password" id="password" placeholder="Enter a strong password" autocomplete="new-password" />
+        <button class="toggle-pw" id="toggle-pw" type="button" title="Toggle visibility">👁</button>
+      </div>
+      <div class="strength-bar-wrap" id="strength-bar">
+        <div class="strength-segment" id="seg1"></div>
+        <div class="strength-segment" id="seg2"></div>
+        <div class="strength-segment" id="seg3"></div>
+        <div class="strength-segment" id="seg4"></div>
+      </div>
+      <div class="strength-label" id="strength-label"></div>
+      <div class="field-error" id="password-error"></div>
+    </div>
+
+    <div class="requirements">
+      <div class="req-title">Password Requirements</div>
+      <div class="req-item" id="req-length">
+        <div class="req-dot" id="dot-length">✗</div>
+        At least 8 characters
+      </div>
+      <div class="req-item" id="req-not-nums">
+        <div class="req-dot" id="dot-not-nums">✗</div>
+        Not only numbers
+      </div>
+      <div class="req-item" id="req-case">
+        <div class="req-dot" id="dot-case">✗</div>
+        Uppercase &amp; lowercase letters
+      </div>
+    </div>
+
+    <button class="btn" id="register-btn" type="button">Register</button>
+
+    <div class="users-section">
+      <div class="users-title">Registered Users</div>
+      <ul class="users-list" id="users-list">
+        <li class="empty-msg" id="empty-msg">No users yet.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /**
+   * SecureVault - Username/Password Registration
+   * Validates:
+   *  1. Password length >= 8 characters
+   *  2. Password is not all integers
+   *  3. Password contains both uppercase and lowercase letters
+   */
+
+  const usernameInput  = document.getElementById('username');
+  const passwordInput  = document.getElementById('password');
+  const registerBtn    = document.getElementById('register-btn');
+  const togglePwBtn    = document.getElementById('toggle-pw');
+  const usernameError  = document.getElementById('username-error');
+  const passwordError  = document.getElementById('password-error');
+  const strengthLabel  = document.getElementById('strength-label');
+  const usersList      = document.getElementById('users-list');
+  const emptyMsg       = document.getElementById('empty-msg');
+  const toast          = document.getElementById('toast');
+
+  // --- Requirement elements ---
+  const reqLength   = document.getElementById('req-length');
+  const reqNotNums  = document.getElementById('req-not-nums');
+  const reqCase     = document.getElementById('req-case');
+  const dotLength   = document.getElementById('dot-length');
+  const dotNotNums  = document.getElementById('dot-not-nums');
+  const dotCase     = document.getElementById('dot-case');
+
+  // --- Strength bar segments ---
+  const segs = [
+    document.getElementById('seg1'),
+    document.getElementById('seg2'),
+    document.getElementById('seg3'),
+    document.getElementById('seg4'),
+  ];
+
+  let users = [];
+  let pwVisible = false;
+
+  // ---------- Toggle Password Visibility ----------
+  togglePwBtn.addEventListener('click', () => {
+    pwVisible = !pwVisible;
+    passwordInput.type = pwVisible ? 'text' : 'password';
+    togglePwBtn.textContent = pwVisible ? '🙈' : '👁';
+  });
+
+  // ---------- Validate Password Rules ----------
+  function validatePassword(pw) {
+    const hasMinLength  = pw.length >= 8;
+    const isOnlyNumbers = /^\d+$/.test(pw);
+    const hasUppercase  = /[A-Z]/.test(pw);
+    const hasLowercase  = /[a-z]/.test(pw);
+
+    return {
+      hasMinLength,
+      notOnlyNumbers: !isOnlyNumbers,
+      hasBothCases: hasUppercase && hasLowercase,
+    };
+  }
+
+  // ---------- Calculate strength score (0-4) ----------
+  function getStrengthScore(pw, rules) {
+    let score = 0;
+    if (rules.hasMinLength) score++;
+    if (rules.notOnlyNumbers) score++;
+    if (rules.hasBothCases) score++;
+    if (pw.length >= 12) score++;
+    return score;
+  }
+
+  // ---------- Update requirement UI items ----------
+  function updateReqItem(el, dot, passed) {
+    el.classList.remove('passed', 'failed');
+    if (passed === null) {
+      dot.textContent = '·';
+      return;
+    }
+    el.classList.add(passed ? 'passed' : 'failed');
+    dot.textContent = passed ? '✓' : '✗';
+  }
+
+  // ---------- Update strength bar ----------
+  function updateStrengthBar(score) {
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    const classes = ['', 'active-1', 'active-2', 'active-3', 'active-4'];
+    segs.forEach((s, i) => {
+      s.className = 'strength-segment' + (i < score ? ` ${classes[score]}` : '');
+    });
+    strengthLabel.textContent = score > 0 ? labels[score] : '';
+    strengthLabel.style.color = score >= 3 ? 'var(--success)' : score === 2 ? '#ffd93d' : 'var(--error)';
+  }
+
+  // ---------- Live password feedback ----------
+  passwordInput.addEventListener('input', () => {
+    const pw = passwordInput.value;
+    passwordError.textContent = '';
+    passwordInput.classList.remove('error-input');
+
+    if (pw === '') {
+      updateReqItem(reqLength,  dotLength,  null);
+      updateReqItem(reqNotNums, dotNotNums, null);
+      updateReqItem(reqCase,    dotCase,    null);
+      updateStrengthBar(0);
+      return;
+    }
+
+    const rules = validatePassword(pw);
+    updateReqItem(reqLength,  dotLength,  rules.hasMinLength);
+    updateReqItem(reqNotNums, dotNotNums, rules.notOnlyNumbers);
+    updateReqItem(reqCase,    dotCase,    rules.hasBothCases);
+
+    const score = getStrengthScore(pw, rules);
+    updateStrengthBar(score);
+  });
+
+  // ---------- Show Toast ----------
+  function showToast(msg, isError = false) {
+    toast.textContent = msg;
+    toast.className = 'toast' + (isError ? ' error' : '');
+    // Force reflow
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // ---------- Register ----------
+  registerBtn.addEventListener('click', () => {
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    let valid = true;
+
+    // Clear previous errors
+    usernameError.textContent = '';
+    passwordError.textContent = '';
+    usernameInput.classList.remove('error-input');
+    passwordInput.classList.remove('error-input');
+
+    // Validate username
+    if (!username) {
+      usernameError.textContent = 'Username is required.';
+      usernameInput.classList.add('error-input');
+      valid = false;
+    } else if (users.find(u => u.toLowerCase() === username.toLowerCase())) {
+      usernameError.textContent = 'Username already taken.';
+      usernameInput.classList.add('error-input');
+      valid = false;
+    }
+
+    // Validate password
+    const rules = validatePassword(password);
+
+    if (!password) {
+      passwordError.textContent = 'Password is required.';
+      passwordInput.classList.add('error-input');
+      valid = false;
+    } else if (!rules.hasMinLength) {
+      passwordError.textContent = 'Password must be at least 8 characters.';
+      passwordInput.classList.add('error-input');
+      valid = false;
+    } else if (!rules.notOnlyNumbers) {
+      passwordError.textContent = 'Password cannot consist of only numbers.';
+      passwordInput.classList.add('error-input');
+      valid = false;
+    } else if (!rules.hasBothCases) {
+      passwordError.textContent = 'Password must have both uppercase and lowercase letters.';
+      passwordInput.classList.add('error-input');
+      valid = false;
+    }
+
+    if (!valid) {
+      showToast('Please fix the errors above.', true);
+      return;
+    }
+
+    // Register user
+    users.push(username);
+    renderUserList();
+
+    // Reset form
+    usernameInput.value = '';
+    passwordInput.value = '';
+    updateReqItem(reqLength,  dotLength,  null);
+    updateReqItem(reqNotNums, dotNotNums, null);
+    updateReqItem(reqCase,    dotCase,    null);
+    updateStrengthBar(0);
+    strengthLabel.textContent = '';
+
+    showToast(`✓ "${username}" registered successfully!`);
+  });
+
+  // ---------- Render User List ----------
+  function renderUserList() {
+    usersList.innerHTML = '';
+    if (users.length === 0) {
+      usersList.innerHTML = '<li class="empty-msg">No users yet.</li>';
+      return;
+    }
+    users.forEach((u, i) => {
+      const li = document.createElement('li');
+      li.className = 'user-item';
+      li.style.animationDelay = `${i * 0.05}s`;
+      li.innerHTML = `
+        <div class="user-avatar">${u[0].toUpperCase()}</div>
+        <span class="user-name">${u}</span>
+        <span class="user-badge">registered</span>
+      `;
+      usersList.appendChild(li);
+    });
+  }
+</script>
+</body>
+</html>
